@@ -1,30 +1,49 @@
 {% extends 'base.html' %}
-{% block title %}Post a job | KugiHub{% endblock %}
+{% block title %}Post a service | KugiHub{% endblock %}
 {% block content %}
 <div class="dashboard-shell employer-dashboard">
     <aside class="dashboard-sidebar">
         <a class="dashboard-brand" href="{% url 'home:employer' %}"><span class="brand-mark" aria-hidden="true"></span><span>Kugi<span>Hub</span></span></a>
         <nav class="dashboard-nav" aria-label="Main navigation">
             <a class="dashboard-nav-link" href="{% url 'home:employer' %}"><span>▦</span> Dashboard</a>
-            <a class="dashboard-nav-link is-active" href="{% url 'home:post_job' %}"><span>＋</span> Post a job</a>
+            <a class="dashboard-nav-link is-active" href="{% url 'home:post_job' %}"><span>＋</span> Post a service</a>
         </nav>
+        <div class="sidebar-bottom">
+            <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button type="submit" class="dashboard-nav-link logout-button"><span>↪</span> Log out</button></form>
+        </div>
     </aside>
+
     <main class="dashboard-main">
-        <header class="dashboard-header"><div><p class="kicker dashboard-kicker">NEW LISTING</p><h1>Post a <strong>job.</strong></h1><p class="dashboard-subtitle">Describe the work and set a clear fee.</p></div></header>
-        <form method="post" class="auth-form job-form" novalidate>
-            {% csrf_token %}
-            {% for field in form %}
-                {% if field.name == 'skills' %}
-                <label>{{ field.label }}</label>
-                <div class="skill-checks">{{ field }}</div>
-                {% else %}
-                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                {{ field }}
-                {% endif %}
-                {% for e in field.errors %}<p class="form-error">{{ e }}</p>{% endfor %}
-            {% endfor %}
-            <button type="submit" class="button-primary">Publish job <span>＋</span></button>
-        </form>
+        <header class="dashboard-header">
+            <div><p class="kicker dashboard-kicker">NEW SERVICE REQUEST</p><h1>Post a <strong>service.</strong></h1><p class="dashboard-subtitle">Tell skilled workers what you need and set a clear fee.</p></div>
+            <a class="profile-chip" href="{% url 'home:employer' %}"><span class="profile-avatar">{{ initial }}</span><span><strong>{{ user.get_full_name }}</strong><small>Back to dashboard</small></span></a>
+        </header>
+
+        <div class="post-layout">
+            <form method="post" class="job-form post-card" novalidate>
+                {% csrf_token %}
+                {% if form.non_field_errors %}<p class="form-error">{{ form.non_field_errors.0 }}</p>{% endif %}
+                <div class="post-grid">
+                    {% for field in form %}
+                    <div class="field{% if field.name == 'title' or field.name == 'description' or field.name == 'skills' %} field-full{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {% if field.name == 'skills' %}<div class="skill-checks">{{ field }}</div>{% else %}{{ field }}{% endif %}
+                        {% for e in field.errors %}<p class="form-error">{{ e }}</p>{% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="button-primary">Post service <span>＋</span></button>
+            </form>
+
+            <aside class="post-tips">
+                <p class="kicker dashboard-kicker">TIPS FOR A GREAT POST</p>
+                <ul>
+                    <li><strong>Be specific.</strong> Say what, where and when.</li>
+                    <li><strong>Set a fair fee.</strong> Clear pay gets faster replies.</li>
+                    <li><strong>Pick the skills.</strong> Matching workers see your post first.</li>
+                </ul>
+            </aside>
+        </div>
     </main>
 </div>
 {% endblock %}

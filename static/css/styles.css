@@ -160,3 +160,22 @@ h1 { margin-top: 12px; font-size: clamp(34px, 4.2vw, 54px); line-height: 1.05; }
 .employer-stat { padding: 14px 16px; }
 .profile-avatar, .large-avatar { background: linear-gradient(135deg, #14b8a6, #0f766e); color: #fff; }
 .flash { border-radius: 10px; }
+
+/* ===== Post service page ===== */
+.post-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 18px; max-width: 1100px; }
+.post-card { max-width: none; padding: 22px; border: 1px solid var(--line); border-radius: 14px; background: #fff; box-shadow: var(--shadow); }
+.post-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+.post-grid .field-full { grid-column: 1 / -1; }
+.post-grid label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 700; }
+.post-card .button-primary { width: 100%; margin-top: 18px; }
+.skill-checks > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.skill-checks label {
+    display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 6px 12px;
+    border: 1.5px solid var(--line); border-radius: 999px; background: #fff;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.skill-checks label:has(input:checked) { border-color: var(--orange); background: #f0fdfa; color: #0f766e; }
+.post-tips { align-self: start; padding: 20px; border: 1px solid var(--orange-light); border-radius: 14px; background: #f0fdfa; }
+.post-tips ul { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; font-size: 13px; line-height: 1.5; color: var(--muted); }
+.post-tips strong { color: var(--ink); }
+@media (max-width: 900px) { .post-layout { grid-template-columns: 1fr; } .post-grid { grid-template-columns: 1fr; } }

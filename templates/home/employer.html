@@ -6,7 +6,7 @@
         <a class="dashboard-brand" href="{% url 'home:employer' %}"><span class="brand-mark" aria-hidden="true"></span><span>Kugi<span>Hub</span></span></a>
         <nav class="dashboard-nav" aria-label="Main navigation">
             <a class="dashboard-nav-link is-active" href="{% url 'home:employer' %}"><span>▦</span> Dashboard</a>
-            <a class="dashboard-nav-link" href="{% url 'home:post_job' %}"><span>＋</span> Post a job</a>
+            <a class="dashboard-nav-link" href="{% url 'home:post_job' %}"><span>＋</span> Post a service</a>
             <a class="dashboard-nav-link" href="#listings"><span>▤</span> My listings</a>
         </nav>
         <div class="sidebar-bottom">
@@ -23,7 +23,7 @@
 
         <section class="employer-actions" id="post-job">
             <div><p class="kicker dashboard-kicker">READY TO GET STARTED?</p><h2>What do you need done?</h2><p>Post the task, set a clear fee, and reach skilled workers nearby.</p></div>
-            <a class="button-primary employer-post-button" href="{% url 'home:post_job' %}">Post a new job <span>＋</span></a>
+            <a class="button-primary employer-post-button" href="{% url 'home:post_job' %}">Post a new service <span>＋</span></a>
         </section>
 
         <section class="employer-stats" aria-label="Employer summary">
@@ -34,11 +34,11 @@
 
         <section class="employer-content" id="listings">
             <div class="jobs-column">
-                <div class="section-heading"><div><p class="kicker dashboard-kicker">YOUR POSTINGS</p><h2>Active job listings</h2></div></div>
+                <div class="section-heading"><div><p class="kicker dashboard-kicker">YOUR POSTINGS</p><h2>Active service listings</h2></div></div>
                 {% for job in listings %}
                 <article class="job-card employer-job-card"><div class="job-card-top"><span class="job-tag">{{ job.get_status_display|upper }}</span><span class="job-time">Posted {{ job.posted_at|timesince }} ago</span></div><h3>{{ job.title }}</h3><p class="job-client">{{ job.location }} · ₱{{ job.fee_amount|floatformat:"-2" }} {{ job.get_fee_type_display|lower }}</p><div class="job-card-footer"><span class="client-rating">{{ job.app_count }} application{{ job.app_count|pluralize }}</span>{% if job.assigned_worker %}<span class="client-rating">Assigned: {{ job.assigned_worker.worker.get_full_name }}</span>{% endif %}</div></article>
                 {% empty %}
-                <article class="job-card"><h3>No active listings yet</h3><p class="job-client">Post your first job to start receiving applications.</p></article>
+                <article class="job-card"><h3>No active listings yet</h3><p class="job-client">Post your first service to start receiving applications.</p></article>
                 {% endfor %}
             </div>
             <aside class="dashboard-right" id="profile">
