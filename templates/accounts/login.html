@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Log in | KugiHub{% endblock %}
+{% block content %}
+<main class="auth-shell">
+    <section class="brand-panel">
+        <a class="brand" href="{% url 'accounts:login' %}"><span class="brand-mark" aria-hidden="true"></span><span>Kugi<span>Hub</span></span></a>
+        <div class="brand-message">
+            <p class="kicker">GOOD WORK. GOOD PEOPLE.</p>
+            <h1>Find the right<br><strong>work to do.</strong></h1>
+            <p>One place for skilled workers and employers to build dependable working relationships.</p>
+        </div>
+        <div class="panel-footer"><span class="status-dot"></span> Built for real work and real trust.</div>
+    </section>
+    <section class="form-panel">
+        <div class="form-intro"><p class="kicker">WELCOME BACK</p><h2>Log in to KugiHub</h2><p>Access your jobs, matches, and profile.</p></div>
+        <form method="post" class="auth-form" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}<p class="form-error">{{ form.non_field_errors.0 }}</p>{% endif %}
+            <label for="id_email">Email address</label>
+            <input id="id_email" name="email" type="email" placeholder="you@example.com" autocomplete="email" value="{{ form.email.value|default:'' }}" required>
+            {% for e in form.email.errors %}<p class="form-error">{{ e }}</p>{% endfor %}
+            <label for="id_password">Password</label>
+            <input id="id_password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required>
+            <button type="submit" class="button-primary">Log in <span>→</span></button>
+        </form>
+        <p class="form-switch">New to KugiHub? <a href="{% url 'accounts:register' %}">Create an account</a></p>
+    </section>
+</main>
+{% endblock %}

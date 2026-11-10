@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Register | KugiHub{% endblock %}
+{% block content %}
+<main class="auth-shell">
+    <section class="brand-panel brand-panel-register">
+        <a class="brand" href="{% url 'accounts:login' %}"><span class="brand-mark" aria-hidden="true"></span><span>Kugi<span>Hub</span></span></a>
+        <div class="brand-message">
+            <p class="kicker">JOIN THE NETWORK</p>
+            <h1>Put your skills<br><strong>to work.</strong></h1>
+            <p>Show what you do best, find better opportunities, and build a reputation people can trust.</p>
+        </div>
+        <div class="panel-footer"><span class="status-dot"></span> Skilled hands. Honest opportunities.</div>
+    </section>
+    <section class="form-panel">
+        <div class="form-intro"><p class="kicker">GET STARTED</p><h2>Create your account</h2><p>Choose how you will use KugiHub.</p></div>
+        <form method="post" class="auth-form" novalidate>
+            {% csrf_token %}
+            <fieldset class="role-fieldset">
+                <legend>I am joining as a...</legend>
+                <div class="role-options">
+                    <label class="role-option"><input type="radio" name="role" value="worker" {% if form.role.value != 'employer' %}checked{% endif %}><span><strong>Skilled worker</strong><small>Find jobs and show your craft</small></span></label>
+                    <label class="role-option"><input type="radio" name="role" value="employer" {% if form.role.value == 'employer' %}checked{% endif %}><span><strong>Employer / client</strong><small>Find dependable people for the job</small></span></label>
+                </div>
+            </fieldset>
+            <div class="name-row">
+                <div>
+                    <label for="id_first_name">First name</label>
+                    <input id="id_first_name" name="first_name" type="text" placeholder="First name" autocomplete="given-name" value="{{ form.first_name.value|default:'' }}" required>
+                    {% for e in form.first_name.errors %}<p class="form-error">{{ e }}</p>{% endfor %}
+                </div>
+                <div>
+                    <label for="id_last_name">Last name</label>
+                    <input id="id_last_name" name="last_name" type="text" placeholder="Last name" autocomplete="family-name" value="{{ form.last_name.value|default:'' }}" required>
+                    {% for e in form.last_name.errors %}<p class="form-error">{{ e }}</p>{% endfor %}
+                </div>
+            </div>
+            <label for="id_email">Email address</label>
+            <input id="id_email" name="email" type="email" placeholder="you@example.com" autocomplete="email" value="{{ form.email.value|default:'' }}" required>
+            {% for e in form.email.errors %}<p class="form-error">{{ e }}</p>{% endfor %}
+            <label for="id_password">Password</label>
+            <input id="id_password" name="password" type="password" placeholder="Create a password" autocomplete="new-password" required>
+            {% for e in form.password.errors %}<p class="form-error">{{ e }}</p>{% endfor %}
+            <button type="submit" class="button-primary">Create account <span>→</span></button>
+        </form>
+        <p class="form-switch">Already have an account? <a href="{% url 'accounts:login' %}">Back to login</a></p>
+    </section>
+</main>
+{% endblock %}

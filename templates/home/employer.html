@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Employer Dashboard | KugiHub{% endblock %}
+{% block content %}
+<div class="dashboard-shell employer-dashboard">
+    <aside class="dashboard-sidebar">
+        <a class="dashboard-brand" href="{% url 'home:employer' %}"><span class="brand-mark" aria-hidden="true"></span><span>Kugi<span>Hub</span></span></a>
+        <nav class="dashboard-nav" aria-label="Main navigation">
+            <a class="dashboard-nav-link is-active" href="{% url 'home:employer' %}"><span>▦</span> Dashboard</a>
+            <a class="dashboard-nav-link" href="{% url 'home:post_job' %}"><span>＋</span> Post a job</a>
+            <a class="dashboard-nav-link" href="#listings"><span>▤</span> My listings</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <p class="sidebar-label">YOUR ACCOUNT</p>
+            <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button type="submit" class="dashboard-nav-link logout-button"><span>↪</span> Log out</button></form>
+        </div>
+    </aside>
+
+    <main class="dashboard-main">
+        <header class="dashboard-header">
+            <div><p class="kicker dashboard-kicker">{% now "l, d F Y" %}</p><h1>Hello, <strong>{{ user.first_name }}.</strong></h1><p class="dashboard-subtitle">Find dependable people for the work that needs doing.</p></div>
+            <a class="profile-chip" href="#profile"><span class="profile-avatar">{{ initial }}</span><span><strong>{{ profile }}</strong><small>View profile</small></span></a>
+        </header>
+
+        <section class="employer-actions" id="post-job">
+            <div><p class="kicker dashboard-kicker">READY TO GET STARTED?</p><h2>What do you need done?</h2><p>Post the task, set a clear fee, and reach skilled workers nearby.</p></div>
+            <a class="button-primary employer-post-button" href="{% url 'home:post_job' %}">Post a new job <span>＋</span></a>
+        </section>
+
+        <section class="employer-stats" aria-label="Employer summary">
+            <div class="employer-stat"><span class="stat-icon">▤</span><div><strong>{{ active_count }}</strong><small>Active listings</small></div></div>
+            <div class="employer-stat"><span class="stat-icon">○</span><div><strong>{{ application_total }}</strong><small>Applications received</small></div></div>
+            <div class="employer-stat"><span class="stat-icon">★</span><div><strong>{{ profile.trust_score }}</strong><small>Your Trust Score</small></div></div>
+        </section>
+
+        <section class="employer-content" id="listings">
+            <div class="jobs-column">
+                <div class="section-heading"><div><p class="kicker dashboard-kicker">YOUR POSTINGS</p><h2>Active job listings</h2></div></div>
+                {% for job in listings %}
+                <article class="job-card employer-job-card"><div class="job-card-top"><span class="job-tag">{{ job.get_status_display|upper }}</span><span class="job-time">Posted {{ job.posted_at|timesince }} ago</span></div><h3>{{ job.title }}</h3><p class="job-client">{{ job.location }} · ₱{{ job.fee_amount|floatformat:"-2" }} {{ job.get_fee_type_display|lower }}</p><div class="job-card-footer"><span class="client-rating">{{ job.app_count }} application{{ job.app_count|pluralize }}</span>{% if job.assigned_worker %}<span class="client-rating">Assigned: {{ job.assigned_worker.worker.get_full_name }}</span>{% endif %}</div></article>
+                {% empty %}
+                <article class="job-card"><h3>No active listings yet</h3><p class="job-client">Post your first job to start receiving applications.</p></article>
+                {% endfor %}
+            </div>
+            <aside class="dashboard-right" id="profile">
+                <section class="trust-card"><div class="trust-card-heading"><p class="kicker dashboard-kicker">YOUR TRUST SCORE</p><span class="trust-mark">★</span></div><div class="trust-score">{{ profile.trust_score }} <small>/ 5.0</small></div><div class="trust-meter"><span style="width: {{ trust_percent }}%"></span></div><p>Based on {{ profile.review_count }} review{{ profile.review_count|pluralize }} · {{ completed_jobs }} completed job{{ completed_jobs|pluralize }}</p></section>
+                <section class="profile-card"><div class="profile-card-heading"><h2>Your profile</h2></div><div class="profile-summary"><span class="large-avatar">{{ initial }}</span><div><h3>{{ profile }}</h3><p>{{ profile.get_employer_type_display }}</p></div></div><div class="skill-list">{% if user.city %}<span>{{ user.city }}</span>{% endif %}<span>{{ user.email }}</span></div><div class="profile-completion"><span>Profile completion</span><strong>{{ completion }}%</strong><div class="completion-track"><span style="width: {{ completion }}%"></span></div></div></section>
+            </aside>
+        </section>
+    </main>
+</div>
+{% endblock %}
