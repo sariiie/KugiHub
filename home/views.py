@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
-
+from django.utils.http import url_has_allowed_host_and_scheme
 from core.models import EmployerProfile, Job, JobApplication, JobSkill, WorkerProfile
 
 from .forms import JobForm
@@ -76,6 +76,11 @@ def apply_view(request, job_id):
         messages.success(request, f'Application sent for "{job.title}".')
     else:
         messages.info(request, 'You already applied to this job.')
+
+    next_url = request.POST.get('next', '')
+    if next_url and url_has_allowed_host_and_scheme(
+            next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        return redirect(next_url)
     return redirect('home:home')
 
 
@@ -181,4 +186,5 @@ def find_work_view(request):
         'matched_only': matched_only,
         'filtered': bool(q or fee_type or matched_only or sort != 'newest'),
         'fee_choices': Job.FeeType.choices,
+        'current_url': request.get_full_path(),
     })
