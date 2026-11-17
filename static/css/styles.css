@@ -227,3 +227,12 @@ h1 { margin-top: 12px; font-size: clamp(34px, 4.2vw, 54px); line-height: 1.05; }
 .post-side { position: sticky; top: 24px; }
 .post-preview { border-top: 4px solid var(--navy); }
 @media (max-width: 900px) { .post-side { position: static; } }
+
+/* ===== Increment: register page ===== */
+.pw-meter { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
+.pw-meter span { height: 5px; border-radius: 999px; background: var(--line); transition: background .2s; }
+.pw-meter[data-level="1"] span:nth-child(-n+1) { background: #ef4444; }
+.pw-meter[data-level="2"] span:nth-child(-n+2) { background: #f59e0b; }
+.pw-meter[data-level="3"] span:nth-child(-n+3) { background: #14b8a6; }
+.pw-meter[data-level="4"] span:nth-child(-n+4) { background: #0d9488; }
+.pw-label { margin: 6px 0 0; color: var(--muted); font-size: 11px; }

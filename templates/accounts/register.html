@@ -9,7 +9,14 @@
             <h1>Put your skills<br><strong>to work.</strong></h1>
             <p>Show what you do best, find better opportunities, and build a reputation people can trust.</p>
         </div>
-        <div class="panel-footer"><span class="status-dot"></span> Skilled hands. Honest opportunities.</div>
+        <div class="brand-bottom">
+            <ul class="brand-points">
+                <li>Free to join, takes a minute</li>
+                <li>Build a profile clients can trust</li>
+                <li>Workers and employers, one place</li>
+            </ul>
+            <div class="panel-footer"><span class="status-dot"></span> Skilled hands. Honest opportunities.</div>
+        </div>
     </section>
     <section class="form-panel">
         <div class="form-intro"><p class="kicker">GET STARTED</p><h2>Create your account</h2><p>Choose how you will use KugiHub.</p></div>
@@ -38,11 +45,59 @@
             <input id="id_email" name="email" type="email" placeholder="you@example.com" autocomplete="email" value="{{ form.email.value|default:'' }}" required>
             {% for e in form.email.errors %}<p class="form-error">{{ e }}</p>{% endfor %}
             <label for="id_password">Password</label>
-            <input id="id_password" name="password" type="password" placeholder="Create a password" autocomplete="new-password" required>
+            <div class="password-wrap">
+                <input id="id_password" name="password" type="password" placeholder="Create a password" autocomplete="new-password" required>
+                <button type="button" class="password-toggle" id="togglePassword" aria-label="Show password">Show</button>
+            </div>
+            <div class="pw-meter" id="pwMeter" data-level="0" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+            <p class="pw-label" id="pwLabel">Use 8+ characters with letters, numbers and a symbol.</p>
             {% for e in form.password.errors %}<p class="form-error">{{ e }}</p>{% endfor %}
-            <button type="submit" class="button-primary">Create account <span>→</span></button>
+            <button type="submit" class="button-primary"><span id="submitLabel">Create account</span> <span>→</span></button>
         </form>
         <p class="form-switch">Already have an account? <a href="{% url 'accounts:login' %}">Back to login</a></p>
     </section>
 </main>
+<script>
+(function () {
+    var input = document.getElementById('id_password');
+    var toggle = document.getElementById('togglePassword');
+    var meter = document.getElementById('pwMeter');
+    var label = document.getElementById('pwLabel');
+    var submitLabel = document.getElementById('submitLabel');
+    var names = ['Use 8+ characters with letters, numbers and a symbol.', 'Weak password', 'Fair password', 'Good password', 'Strong password'];
+
+    function score(v) {
+        if (!v) return 0;
+        var s = 0;
+        if (v.length >= 8) s++;
+        if (/[a-z]/.test(v) && /[A-Z]/.test(v)) s++;
+        if (/\d/.test(v)) s++;
+        if (/[^A-Za-z0-9]/.test(v)) s++;
+        return Math.max(s, 1);
+    }
+
+    if (input && toggle) {
+        toggle.addEventListener('click', function () {
+            var show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            toggle.textContent = show ? 'Hide' : 'Show';
+            toggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+        });
+        input.addEventListener('input', function () {
+            var level = score(input.value);
+            meter.setAttribute('data-level', level);
+            label.textContent = names[level];
+        });
+    }
+
+    document.querySelectorAll('input[name="role"]').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            submitLabel.textContent = radio.value === 'employer' ? 'Create employer account' : 'Create worker account';
+        });
+        if (radio.checked && radio.value === 'employer') {
+            submitLabel.textContent = 'Create employer account';
+        }
+    });
+})();
+</script>
 {% endblock %}
