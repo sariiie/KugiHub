@@ -121,3 +121,64 @@ def post_job_view(request):
         messages.success(request, f'"{job.title}" is now live.')
         return redirect('home:employer')
     return render(request, 'home/post_job.html', {'form': form, 'initial': _initial(request.user)})
+
+@login_required
+def find_work_view(request):
+    """Worker 'Find work' page: search, filter and sort open jobs."""
+    if (redirect_to := _role_guard(request, 'worker')):
+        return redirect_to
+    profile, _ = WorkerProfile.objects.get_or_create(worker=request.user)
+
+    q = request.GET.get('q', '').strip()
+    fee_type = request.GET.get('fee', '')
+    if fee_type not in Job.FeeType.values:
+        fee_type = ''
+    sort = request.GET.get('sort', 'newest')
+    matched_only = request.GET.get('matched') == '1'
+
+    jobs = (Job.objects.filter(status=Job.Status.OPEN)
+            .select_related('employer__employer')
+            .prefetch_related('skills'))
+    if q:
+        jobs = jobs.filter(Q(title__icontains=q) | Q(location__icontains=q)
+                           | Q(skills__skill_name__icontains=q)).distinct()
+    if fee_type:
+        jobs = jobs.filter(fee_type=fee_type)
+
+    if sort == 'fee_high':
+        jobs = jobs.order_by('-fee_amount')
+    elif sort == 'fee_low':
+        jobs = jobs.order_by('fee_amount')
+    else:
+        if sort != 'match':
+            sort = 'newest'
+        jobs = jobs.order_by('-posted_at')
+
+    my_skill_ids = set(profile.skills.values_list('pk', flat=True))
+    applied_ids = set(profile.applications.values_list('job_id', flat=True))
+    cards = []
+    for job in jobs[:100]:
+        job_skills = list(job.skills.all())
+        matched = any(s.pk in my_skill_ids for s in job_skills)
+        if matched_only and not matched:
+            continue
+        cards.append({
+            'job': job,
+            'skills': job_skills,
+            'matched': matched,
+            'applied': job.pk in applied_ids,
+        })
+    if sort == 'match':
+        cards.sort(key=lambda c: not c['matched'])   # matched first (stable sort)
+
+    return render(request, 'home/find_work.html', {
+        'initial': _initial(request.user),
+        'cards': cards,
+        'total': len(cards),
+        'q': q,
+        'fee_type': fee_type,
+        'sort': sort,
+        'matched_only': matched_only,
+        'filtered': bool(q or fee_type or matched_only or sort != 'newest'),
+        'fee_choices': Job.FeeType.choices,
+    })

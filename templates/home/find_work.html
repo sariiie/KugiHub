@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Find work | KugiHub{% endblock %}
+{% block content %}
+<div class="dashboard-shell">
+    <aside class="dashboard-sidebar">
+        <a class="dashboard-brand" href="{% url 'home:home' %}"><span class="brand-mark" aria-hidden="true"></span><span>Kugi<span>Hub</span></span></a>
+        <nav class="dashboard-nav" aria-label="Main navigation">
+            <a class="dashboard-nav-link" href="{% url 'home:home' %}"><span>▦</span> Dashboard</a>
+            <a class="dashboard-nav-link is-active" href="{% url 'home:find_work' %}"><span>＋</span> Find work</a>
+            <a class="dashboard-nav-link" href="{% url 'home:home' %}#profile"><span>○</span> My profile</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <p class="sidebar-label">YOUR ACCOUNT</p>
+            <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button type="submit" class="dashboard-nav-link logout-button"><span>↪</span> Log out</button></form>
+        </div>
+    </aside>
+
+    <main class="dashboard-main">
+        <header class="dashboard-header">
+            <div>
+                <p class="kicker dashboard-kicker">FIND WORK</p>
+                <h1>Find your next <strong>job.</strong></h1>
+                <p class="dashboard-subtitle">Search open service requests and apply in one click.</p>
+            </div>
+            <a class="profile-chip" href="{% url 'home:home' %}#profile"><span class="profile-avatar">{{ initial }}</span><span><strong>{{ user.get_full_name }}</strong><small>Back to dashboard</small></span></a>
+        </header>
+
+        <div class="find-wrap">
+            <form method="get" class="find-filters">
+                <div class="find-search"><span>⌕</span><input type="search" name="q" value="{{ q }}" placeholder="Search by job, skill, or location" aria-label="Search jobs"></div>
+                <select name="fee" aria-label="Fee type">
+                    <option value="">Any fee type</option>
+                    {% for value, label in fee_choices %}<option value="{{ value }}"{% if value == fee_type %} selected{% endif %}>{{ label }}</option>{% endfor %}
+                </select>
+                <select name="sort" aria-label="Sort by">
+                    <option value="newest"{% if sort == 'newest' %} selected{% endif %}>Newest first</option>
+                    <option value="match"{% if sort == 'match' %} selected{% endif %}>Best match</option>
+                    <option value="fee_high"{% if sort == 'fee_high' %} selected{% endif %}>Highest fee</option>
+                    <option value="fee_low"{% if sort == 'fee_low' %} selected{% endif %}>Lowest fee</option>
+                </select>
+                <label class="find-check"><input type="checkbox" name="matched" value="1"{% if matched_only %} checked{% endif %}> Matched to my skills</label>
+                <button type="submit" class="job-button">Search</button>
+            </form>
+
+            <div class="find-summary">
+                <p><strong>{{ total }}</strong> open job{{ total|pluralize }}{% if q %} for “{{ q }}”{% endif %}</p>
+                {% if filtered %}<a href="{% url 'home:find_work' %}">Clear filters</a>{% endif %}
+            </div>
+
+            <div class="job-grid">
+                {% for card in cards %}
+                <article class="job-card{% if card.matched %} job-card-featured{% endif %}">
+                    <div class="job-card-top"><span class="job-tag{% if not card.matched %} job-tag-quiet{% endif %}">{% if card.matched %}MATCHED FOR YOU{% else %}NEW LISTING{% endif %}</span><span class="job-time">Posted {{ card.job.posted_at|timesince }} ago</span></div>
+                    <h3>{{ card.job.title }}</h3>
+                    <p class="job-client">{{ card.job.employer }} · {{ card.job.location }}</p>
+                    <div class="job-details">
+                        {% for skill in card.skills %}<span>▣ {{ skill.skill_name }}</span>{% endfor %}
+                        <span>◷ {{ card.job.get_fee_type_display }}</span>
+                        <strong>₱{{ card.job.fee_amount|floatformat:"-2" }}</strong>
+                    </div>
+                    <div class="job-card-footer">
+                        <span class="client-rating">★ {{ card.job.employer.trust_score }} client trust</span>
+                        {% if card.applied %}
+                        <span class="client-rating">✓ Applied</span>
+                        {% else %}
+                        <form method="post" action="{% url 'home:apply' card.job.pk %}">{% csrf_token %}<button type="submit" class="job-button">Apply <span>→</span></button></form>
+                        {% endif %}
+                    </div>
+                </article>
+                {% empty %}
+                <article class="job-card empty-state">
+                    <h3>No jobs match your search</h3>
+                    <p class="job-client">Try a different keyword or clear the filters.</p>
+                </article>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+(function () {
+    var controls = document.querySelectorAll('.find-filters select, .find-filters input[type="checkbox"]');
+    controls.forEach(function (el) {
+        el.addEventListener('change', function () { el.form.submit(); });
+    });
+})();
+</script>
+{% endblock %}

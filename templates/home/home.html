@@ -6,7 +6,7 @@
         <a class="dashboard-brand" href="{% url 'home:home' %}"><span class="brand-mark" aria-hidden="true"></span><span>Kugi<span>Hub</span></span></a>
         <nav class="dashboard-nav" aria-label="Main navigation">
             <a class="dashboard-nav-link is-active" href="{% url 'home:home' %}"><span>▦</span> Dashboard</a>
-            <a class="dashboard-nav-link" href="#jobs"><span>＋</span> Find work</a>
+            <a class="dashboard-nav-link" href="{% url 'home:find_work' %}"><span>＋</span> Find work</a>
             <a class="dashboard-nav-link" href="#profile"><span>○</span> My profile</a>
         </nav>
         <div class="sidebar-bottom">

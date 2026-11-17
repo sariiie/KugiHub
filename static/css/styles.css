@@ -250,3 +250,23 @@ h1 { margin-top: 12px; font-size: clamp(34px, 4.2vw, 54px); line-height: 1.05; }
 .job-card[hidden] { display: none; }
 .empty-state { padding: 28px 22px; text-align: center; }
 .empty-state .button-primary { display: inline-flex; gap: 10px; margin-top: 18px; text-decoration: none; }
+
+/* ===== Increment: find-work page ===== */
+.find-wrap { max-width: 1210px; margin: 0 auto; }
+.find-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: #fff; box-shadow: var(--shadow); }
+.find-search { display: flex; flex: 1 1 260px; align-items: center; gap: 8px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.find-search:focus-within { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(13, 148, 136, .15); }
+.find-search span { color: var(--muted); }
+.find-search input { flex: 1; min-width: 0; padding: 11px 0; border: 0; outline: 0; background: transparent; font: inherit; }
+.find-filters select { padding: 11px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); font: inherit; font-size: 13px; }
+.find-check { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.find-check input { accent-color: var(--orange); }
+.find-summary { display: flex; align-items: center; justify-content: space-between; margin: 18px 2px 8px; color: var(--muted); font-size: 13px; }
+.find-summary p { margin: 0; }
+.find-summary strong { color: var(--ink); }
+.find-summary a { color: var(--orange); font-weight: 700; text-decoration: none; }
+.find-summary a:hover { text-decoration: underline; }
+.job-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+.job-grid .job-card { display: flex; flex-direction: column; margin-top: 0; }
+.job-grid .job-card-footer { margin-top: auto; }
+.job-grid .empty-state { grid-column: 1 / -1; padding: 28px 22px; text-align: center; }
