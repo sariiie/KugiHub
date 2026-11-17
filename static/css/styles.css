@@ -221,3 +221,9 @@ h1 { margin-top: 12px; font-size: clamp(34px, 4.2vw, 54px); line-height: 1.05; }
 .pv-skills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
 .pv-skills span { padding: 4px 10px; border-radius: 999px; background: #f0fdfa; color: #0f766e; font-size: 11px; font-weight: 700; }
 .field-hint { display: block; margin-top: 6px; color: var(--muted); font-size: 11px; }
+
+/* ===== Increment: post-service polish ===== */
+.post-card { border-top: 4px solid var(--orange); }
+.post-side { position: sticky; top: 24px; }
+.post-preview { border-top: 4px solid var(--navy); }
+@media (max-width: 900px) { .post-side { position: static; } }
