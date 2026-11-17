@@ -9,7 +9,14 @@
             <h1>Find the right<br><strong>work to do.</strong></h1>
             <p>One place for skilled workers and employers to build dependable working relationships.</p>
         </div>
-        <div class="panel-footer"><span class="status-dot"></span> Built for real work and real trust.</div>
+        <div class="brand-bottom">
+            <ul class="brand-points">
+                <li>Jobs matched to your skills</li>
+                <li>Trust scores built on real reviews</li>
+                <li>Clear fees, no guesswork</li>
+            </ul>
+            <div class="panel-footer"><span class="status-dot"></span> Built for real work and real trust.</div>
+        </div>
     </section>
     <section class="form-panel">
         <div class="form-intro"><p class="kicker">WELCOME BACK</p><h2>Log in to KugiHub</h2><p>Access your jobs, matches, and profile.</p></div>
@@ -17,13 +24,29 @@
             {% csrf_token %}
             {% if form.non_field_errors %}<p class="form-error">{{ form.non_field_errors.0 }}</p>{% endif %}
             <label for="id_email">Email address</label>
-            <input id="id_email" name="email" type="email" placeholder="you@example.com" autocomplete="email" value="{{ form.email.value|default:'' }}" required>
+            <input id="id_email" name="email" type="email" placeholder="you@example.com" autocomplete="email" value="{{ form.email.value|default:'' }}" autofocus required>
             {% for e in form.email.errors %}<p class="form-error">{{ e }}</p>{% endfor %}
             <label for="id_password">Password</label>
-            <input id="id_password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required>
+            <div class="password-wrap">
+                <input id="id_password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required>
+                <button type="button" class="password-toggle" id="togglePassword" aria-label="Show password">Show</button>
+            </div>
             <button type="submit" class="button-primary">Log in <span>→</span></button>
         </form>
         <p class="form-switch">New to KugiHub? <a href="{% url 'accounts:register' %}">Create an account</a></p>
     </section>
 </main>
+<script>
+(function () {
+    var input = document.getElementById('id_password');
+    var btn = document.getElementById('togglePassword');
+    if (!input || !btn) return;
+    btn.addEventListener('click', function () {
+        var show = input.type === 'password';
+        input.type = show ? 'text' : 'password';
+        btn.textContent = show ? 'Hide' : 'Show';
+        btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+    });
+})();
+</script>
 {% endblock %}
