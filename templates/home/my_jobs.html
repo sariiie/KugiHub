@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}My listings | KugiHub{% endblock %}
+{% block content %}
+<div class="dashboard-shell">
+    {% include 'home/_sidebar.html' with active='my_jobs' %}
+    <main class="dashboard-main">
+        <header class="dashboard-header">
+            <div>
+                <p class="kicker dashboard-kicker">MY LISTINGS</p>
+                <h1>Manage your <strong>services.</strong></h1>
+                <p class="dashboard-subtitle">Review applicants, edit details, track progress or remove a listing.</p>
+            </div>
+            <a class="button-primary employer-post-button" href="{% url 'home:post_job' %}">Post a service <span>＋</span></a>
+        </header>
+
+        <div class="ui-wrap">
+            <div class="ui-chips">
+                {% for value, label, n in chips %}
+                <a class="ui-chip{% if value == status %} is-active{% endif %}" href="?status={{ value }}">{{ label }} <small>{{ n }}</small></a>
+                {% endfor %}
+            </div>
+
+            {% for job in jobs %}
+            <article class="ui-card ui-item">
+                <div class="ui-item-top">
+                    <span class="ui-status ui-status-{{ job.status }}">{{ job.get_status_display }}</span>
+                    <span class="report-sub">Posted {{ job.posted_at|timesince }} ago</span>
+                </div>
+                <h3 class="ui-item-title">{{ job.title }}</h3>
+                <p class="report-sub">{{ job.location }} · ₱{{ job.fee_amount|floatformat:"-2" }} {{ job.get_fee_type_display|lower }}</p>
+                <p class="report-sub">
+                    {{ job.app_count }} application{{ job.app_count|pluralize }}{% if job.pending_count %} · <strong>{{ job.pending_count }} waiting for you</strong>{% endif %}
+                    {% if job.assigned_worker %} · Assigned to {{ job.assigned_worker.worker.get_full_name }}{% endif %}
+                </p>
+
+                <div class="ui-actions">
+                    <a class="ui-btn" href="{% url 'home:job_applicants' job.pk %}">Applicants ({{ job.app_count }})</a>
+
+                    {% if job.status == 'open' or job.status == 'assigned' or job.status == 'in_progress' %}
+                    <a class="ui-btn ui-btn-ghost" href="{% url 'home:edit_job' job.pk %}">Edit</a>
+                    {% endif %}
+
+                    {% if job.status == 'assigned' %}
+                    <form method="post" action="{% url 'home:job_status' job.pk %}">{% csrf_token %}<input type="hidden" name="action" value="start"><button type="submit" class="ui-btn ui-btn-success">Start job</button></form>
+                    {% endif %}
+                    {% if job.status == 'in_progress' %}
+                    <form method="post" action="{% url 'home:job_status' job.pk %}" onsubmit="return confirm('Mark this job as completed?');">{% csrf_token %}<input type="hidden" name="action" value="complete"><button type="submit" class="ui-btn ui-btn-success">Mark completed</button></form>
+                    {% endif %}
+
+                    {% if job.status == 'open' or job.status == 'assigned' or job.status == 'in_progress' %}
+                    <form method="post" action="{% url 'home:job_status' job.pk %}" onsubmit="return confirm('Cancel this job? Pending applicants will be rejected.');">{% csrf_token %}<input type="hidden" name="action" value="cancel"><button type="submit" class="ui-btn ui-btn-ghost">Cancel job</button></form>
+                    {% endif %}
+
+                    {% if job.status == 'completed' and job.assigned_worker and job.pk not in reviewed_job_ids %}
+                    <a class="ui-btn" href="{% url 'home:review' job.pk %}">Rate worker ★</a>
+                    {% endif %}
+
+                    {% if job.status == 'open' or job.status == 'cancelled' %}
+                    <form method="post" action="{% url 'home:delete_job' job.pk %}" onsubmit="return confirm('Delete this listing permanently?');">{% csrf_token %}<button type="submit" class="ui-btn ui-btn-danger">Delete</button></form>
+                    {% endif %}
+                </div>
+            </article>
+            {% empty %}
+            <article class="ui-card ui-empty">
+                <h3>No listings here</h3>
+                <p>{% if status %}Nothing with this status.{% else %}Post your first service to start receiving applications.{% endif %}</p>
+                <a class="button-primary" href="{% url 'home:post_job' %}">Post a service <span>＋</span></a>
+            </article>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+{% endblock %}

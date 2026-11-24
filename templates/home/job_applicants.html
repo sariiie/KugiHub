@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Applicants | KugiHub{% endblock %}
+{% block content %}
+<div class="dashboard-shell">
+    {% include 'home/_sidebar.html' with active='my_jobs' %}
+    <main class="dashboard-main">
+        <header class="dashboard-header">
+            <div>
+                <p class="kicker dashboard-kicker">APPLICANTS</p>
+                <h1>Who applied for <strong>{{ job.title }}?</strong></h1>
+                <p class="dashboard-subtitle">Accept one worker. The other pending applications will be rejected automatically.</p>
+            </div>
+            <a class="profile-chip" href="{% url 'home:my_jobs' %}"><span class="profile-avatar">{{ initial }}</span><span><strong>{{ user.get_full_name }}</strong><small>Back to listings</small></span></a>
+        </header>
+
+        <div class="ui-wrap">
+            <div class="ui-summary ui-card">
+                <span class="ui-status ui-status-{{ job.status }}">{{ job.get_status_display }}</span>
+                <span>{{ job.location }} · ₱{{ job.fee_amount|floatformat:"-2" }} {{ job.get_fee_type_display|lower }}</span>
+                <span>{{ applications|length }} applicant{{ applications|length|pluralize }}</span>
+            </div>
+            {% if not can_decide %}<div class="report-note">This job is {{ job.get_status_display|lower }}, so applications can no longer be accepted or rejected.</div>{% endif %}
+
+            {% for app in applications %}
+            <article class="ui-card ui-item">
+                <div class="ui-item-top">
+                    <span class="ui-status ui-status-{{ app.status }}">{{ app.get_status_display }}</span>
+                    <span class="report-sub">Applied {{ app.applied_at|timesince }} ago</span>
+                </div>
+                <h3 class="ui-item-title">{{ app.worker.worker.get_full_name }}</h3>
+                <p class="report-sub">{{ app.worker.headline|default:"Skilled worker" }} · {{ app.worker.years_experience }} yr{{ app.worker.years_experience|pluralize }} experience · {{ app.worker.get_availability_display }}</p>
+                <p class="report-sub">★ {{ app.worker.trust_score }} trust score ({{ app.worker.review_count }} review{{ app.worker.review_count|pluralize }}){% if app.worker.worker.city %} · {{ app.worker.worker.city }}{% endif %}</p>
+                <div class="ui-tags">{% for ws in app.worker.worker_skills.all %}<span>{{ ws.skill.skill_name }}</span>{% endfor %}</div>
+                {% if app.message %}<p class="ui-quote">{{ app.message }}</p>{% endif %}
+
+                {% if can_decide and app.status == 'pending' %}
+                <div class="ui-actions">
+                    <form method="post" action="{% url 'home:decide_application' app.pk %}">{% csrf_token %}<input type="hidden" name="action" value="accept"><button type="submit" class="ui-btn ui-btn-success">Accept</button></form>
+                    <form method="post" action="{% url 'home:decide_application' app.pk %}">{% csrf_token %}<input type="hidden" name="action" value="reject"><button type="submit" class="ui-btn ui-btn-danger">Reject</button></form>
+                </div>
+                {% endif %}
+            </article>
+            {% empty %}
+            <article class="ui-card ui-empty"><h3>No applicants yet</h3><p>Workers who apply will appear here.</p></article>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+{% endblock %}
