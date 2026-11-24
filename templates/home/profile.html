@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}My profile | KugiHub{% endblock %}
+{% block content %}
+<div class="dashboard-shell">
+    {% include 'home/_sidebar.html' with active='profile' %}
+    <main class="dashboard-main">
+        <header class="dashboard-header">
+            <div>
+                <p class="kicker dashboard-kicker">MY PROFILE</p>
+                <h1>Your <strong>profile.</strong></h1>
+                <p class="dashboard-subtitle">{% if user.is_employer %}Keep your details current so workers know who they are applying to.{% else %}A complete profile helps clients trust and hire you.{% endif %}</p>
+            </div>
+            <a class="profile-chip" href="{% url 'home:trust' %}"><span class="profile-avatar">{{ initial }}</span><span><strong>{{ user.get_full_name }}</strong><small>View trust score</small></span></a>
+        </header>
+
+        <div class="pf-page">
+            <section class="pf-hero">
+                <div class="pf-avatar">{{ initial }}</div>
+                <div class="pf-hero-main">
+                    <span class="pf-role">{% if user.is_employer %}Employer / Client{% else %}Skilled worker{% endif %}</span>
+                    <h2>{{ user.get_full_name }}</h2>
+                    <p>{{ user.email }}{% if user.city %} · {{ user.city }}{% endif %}</p>
+                    <p class="pf-tagline">{% if user.is_employer %}{{ profile.company_name|default:"Add your company name below" }}{% else %}{{ profile.headline|default:"Add a headline to stand out" }}{% endif %}</p>
+                </div>
+                <div class="pf-hero-stats">
+                    <div class="pf-stat"><strong>{{ profile.trust_score }}</strong><span>Trust ★</span></div>
+                    {% for label, value in stats %}
+                    <div class="pf-stat"><strong>{{ value }}</strong><span>{{ label }}</span></div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <form method="post" class="pf-layout" novalidate>
+                {% csrf_token %}
+                <div class="pf-main">
+                    {% if account_form.non_field_errors %}<p class="form-error">{{ account_form.non_field_errors.0 }}</p>{% endif %}
+                    {% if profile_form.non_field_errors %}<p class="form-error">{{ profile_form.non_field_errors.0 }}</p>{% endif %}
+
+                    <section class="pf-card">
+                        <div class="pf-card-head"><span class="pf-icon">☺</span><div><h2>Account</h2><p>Basic details shown to people you work with.</p></div></div>
+                        <div class="pf-grid">
+                            {% include 'home/_pf_field.html' with field=account_form.first_name cls='' %}
+                            {% include 'home/_pf_field.html' with field=account_form.last_name cls='' %}
+                            <div class="pf-field"><label>Email</label><input type="text" value="{{ user.email }}" disabled></div>
+                            {% include 'home/_pf_field.html' with field=account_form.phone cls='' %}
+                            {% include 'home/_pf_field.html' with field=account_form.city cls='pf-span-2' %}
+                        </div>
+                    </section>
+
+                    {% if user.is_employer %}
+                    <section class="pf-card">
+                        <div class="pf-card-head"><span class="pf-icon">▣</span><div><h2>Employer details</h2><p>Tell workers who you are and where the work happens.</p></div></div>
+                        <div class="pf-grid">
+                            {% include 'home/_pf_field.html' with field=profile_form.employer_type cls='' %}
+                            {% include 'home/_pf_field.html' with field=profile_form.company_name cls='pf-span-2' %}
+                            {% include 'home/_pf_field.html' with field=profile_form.address cls='pf-span-3' %}
+                            {% include 'home/_pf_field.html' with field=profile_form.description cls='pf-span-3' %}
+                        </div>
+                    </section>
+                    {% else %}
+                    <section class="pf-card">
+                        <div class="pf-card-head"><span class="pf-icon">✦</span><div><h2>Worker profile</h2><p>Your pitch to clients: what you do and how long you've done it.</p></div></div>
+                        <div class="pf-grid">
+                            {% include 'home/_pf_field.html' with field=profile_form.headline cls='pf-span-3' %}
+                            {% include 'home/_pf_field.html' with field=profile_form.years_experience cls='' %}
+                            {% include 'home/_pf_field.html' with field=profile_form.availability cls='pf-span-2' %}
+                            {% include 'home/_pf_field.html' with field=profile_form.bio cls='pf-span-3' %}
+                        </div>
+                    </section>
+
+                                        <section class="pf-card">
+                        <div class="pf-card-head"><span class="pf-icon">✓</span><div><h2>Your skills</h2><p>Pick everything you can do. Matching jobs appear first in Find work.</p></div></div>
+                        {% if profile_form.skills.field.queryset.exists %}
+                        <div class="pf-skills">{{ profile_form.skills }}</div>
+                        {% else %}
+                        <p class="pf-empty">No skills yet. Add your first one below.</p>
+                        {% endif %}
+                        <div class="pf-addskill">
+                            {% include 'home/_pf_field.html' with field=profile_form.new_skills cls='' %}
+                            <p class="pf-hint">Separate several skills with commas. To remove a skill, untick it and save.</p>
+                        </div>
+                    </section>
+                    {% endif %}
+
+                    <div class="pf-savebar">
+                        <span>Changes are saved to your account.</span>
+                        <button type="submit" class="pf-save">Save changes ✓</button>
+                    </div>
+                </div>
+
+                <aside class="pf-side">
+                    <section class="pf-card">
+                        <div class="pf-card-head"><span class="pf-icon">%</span><div><h2>Profile strength</h2><p>{{ completion }}% complete</p></div></div>
+                        <div class="pf-meter"><span style="width: {{ completion }}%"></span></div>
+                        <ul class="pf-check">
+                            {% for label, done in checklist %}
+                            <li class="{% if done %}ok{% endif %}"><span>{% if done %}✓{% else %}○{% endif %}</span> {{ label }}</li>
+                            {% endfor %}
+                        </ul>
+                    </section>
+
+                    <section class="trust-card">
+                        <div class="trust-card-heading"><p class="kicker dashboard-kicker">YOUR TRUST SCORE</p><span class="trust-mark">★</span></div>
+                        <div class="trust-score">{{ profile.trust_score }} <small>/ 5.0</small></div>
+                        <div class="trust-meter"><span style="width: {{ trust_percent }}%"></span></div>
+                        <p>Based on {{ profile.review_count }} review{{ profile.review_count|pluralize }}. <a class="ui-light-link" href="{% url 'home:trust' %}">See details →</a></p>
+                    </section>
+                </aside>
+            </form>
+        </div>
+    </main>
+</div>
+{% endblock %}
