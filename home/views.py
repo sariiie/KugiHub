@@ -1,3 +1,4 @@
+import re
 from decimal import Decimal, ROUND_HALF_UP
 
 from django.contrib import messages
@@ -10,7 +11,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from core.models import (
-    EmployerProfile, Job, JobApplication, JobSkill, Review, Skill, WorkerProfile, WorkerSkill,
+    EmployerProfile, Job, JobApplication, JobSkill, Review, Skill, User, WorkerProfile, WorkerSkill,
 )
 
 from .forms import (
@@ -24,6 +25,8 @@ from .forms import (
 def _role_guard(request, role):
     """Send users to the dashboard that matches their role."""
     if request.user.role != role:
+        if request.user.role == 'admin':
+            return redirect('home:admin_home')
         return redirect('home:employer' if request.user.is_employer else 'home:home')
     return None
 
@@ -494,6 +497,8 @@ def application_decision_view(request, application_id):
 # ---------------------------------------------------------------------------
 @login_required
 def profile_view(request):
+    if request.user.role == 'admin':
+        return redirect('home:admin_home')
     user = request.user
     profile = _profile_for(user)
     if user.is_employer:
@@ -534,20 +539,41 @@ def profile_view(request):
             ('Skills listed', profile.worker_skills.count()),
         ]
 
+    if user.is_employer:
+        checklist = [
+            ('Company name', bool(profile.company_name)),
+            ('About your business', bool(profile.description)),
+            ('Address', bool(profile.address)),
+            ('Phone number', bool(user.phone)),
+            ('City', bool(user.city)),
+        ]
+    else:
+        checklist = [
+            ('Headline', bool(profile.headline)),
+            ('Bio', bool(profile.bio)),
+            ('Years of experience', bool(profile.years_experience)),
+            ('At least one skill', profile.worker_skills.exists()),
+            ('Phone number', bool(user.phone)),
+            ('City', bool(user.city)),
+        ]
+    completion = round(100 * sum(done for _, done in checklist) / len(checklist))
+
     return render(request, 'home/profile.html', {
         'initial': _initial(user),
         'profile': profile,
         'account_form': account_form,
         'profile_form': profile_form,
         'stats': stats,
-        'trust_percent': int(profile.trust_score / 5 * 100),
         'checklist': checklist,
         'completion': completion,
+        'trust_percent': int(profile.trust_score / 5 * 100),
     })
 
 
 @login_required
 def trust_score_view(request):
+    if request.user.role == 'admin':
+        return redirect('home:admin_home')
     user = request.user
     profile = _profile_for(user)
 
@@ -597,6 +623,8 @@ def trust_score_view(request):
 
 @login_required
 def review_view(request, job_id):
+    if request.user.role == 'admin':
+        return redirect('home:admin_home')
     """Rate the other person on a completed job (employer <-> worker)."""
     user = request.user
     job = get_object_or_404(
@@ -642,23 +670,94 @@ def review_view(request, job_id):
 
 
 # ---------------------------------------------------------------------------
-# JOIN / SUBQUERY activity
+# administrator: overview + reports (JOIN and SUBQUERY)
 # ---------------------------------------------------------------------------
+def _admin_guard(request):
+    if request.user.role != User.Role.ADMIN:
+        return redirect('home:employer' if request.user.is_employer else 'home:home')
+    return None
+
+
+def _pretty_sql(queryset):
+    """Readable copy of the SQL Django generates, shown in the report footer."""
+    sql = str(queryset.query)
+    sql = re.sub(r'^SELECT .*? FROM ', 'SELECT ...\nFROM ', sql, count=1, flags=re.S)
+    sql = re.sub(r' (INNER JOIN|LEFT OUTER JOIN|WHERE|GROUP BY|ORDER BY) ', r'\n\1 ', sql)
+    return sql.replace('(SELECT', '(\n    SELECT')
+
+
+def _attach_application_counts(jobs):
+    counts = dict(JobApplication.objects.values_list('job_id')
+                  .annotate(n=Count('application_id')).order_by())
+    for job in jobs:
+        job.app_count = counts.get(job.pk, 0)
+    return jobs
+
+
 @login_required
-def jobs_with_employers_view(request):
+def admin_home_view(request):
+    if (redirect_to := _admin_guard(request)):
+        return redirect_to
+    roles = dict(User.objects.values_list('role').annotate(n=Count('user_id')).order_by())
+    statuses = dict(Job.objects.values_list('status').annotate(n=Count('job_id')).order_by())
+    applied_ids = JobApplication.objects.values('job_id')
+    stale = (Job.objects.filter(status=Job.Status.OPEN)
+             .exclude(job_id__in=Subquery(applied_ids)).count())
+    return render(request, 'home/admin_home.html', {
+        'initial': _initial(request.user),
+        'workers': roles.get('worker', 0),
+        'employers': roles.get('employer', 0),
+        'jobs_total': sum(statuses.values()),
+        'open_jobs': statuses.get(Job.Status.OPEN, 0),
+        'applications': JobApplication.objects.count(),
+        'stale': stale,
+    })
+
+
+@login_required
+def admin_listings_view(request):
     """JOIN: jobs + employer_profiles + users."""
-    jobs = (Job.objects
-            .filter(status=Job.Status.OPEN)
-            .select_related('employer__employer')
-            .order_by('-posted_at'))
-    print(jobs.query)
-    return render(request, 'home/jobs_join.html', {'jobs': jobs})
+    if (redirect_to := _admin_guard(request)):
+        return redirect_to
+    status = request.GET.get('status', '')
+    jobs = Job.objects.select_related('employer__employer').order_by('-posted_at')
+    if status in Job.Status.values:
+        jobs = jobs.filter(status=status)
+    else:
+        status = ''
+    counts = dict(Job.objects.values_list('status').annotate(n=Count('job_id')).order_by())
+    chips = [('', 'All', sum(counts.values()))] + [
+        (value, label, counts.get(value, 0)) for value, label in Job.Status.choices]
+    return render(request, 'home/admin_listings.html', {
+        'initial': _initial(request.user),
+        'jobs': _attach_application_counts(list(jobs[:200])),
+        'chips': chips,
+        'status': status,
+        'sql': _pretty_sql(jobs),
+    })
 
 
 @login_required
-def jobs_with_applications_view(request):
-    """SUBQUERY: jobs whose job_id appears in job_applications."""
-    applied_job_ids = JobApplication.objects.values('job_id')   # inner query
-    jobs = Job.objects.filter(job_id__in=Subquery(applied_job_ids))  # outer query
-    print(jobs.query)
-    return render(request, 'home/jobs_subquery.html', {'jobs': jobs})
+def admin_engagement_view(request):
+    """SUBQUERY: listings with / without applications."""
+    if (redirect_to := _admin_guard(request)):
+        return redirect_to
+    show = request.GET.get('show', 'none')
+    if show not in ('none', 'applied'):
+        show = 'none'
+
+    applied_ids = JobApplication.objects.values('job_id')                       # inner query
+    with_applicants = Job.objects.filter(job_id__in=Subquery(applied_ids))      # outer query
+    no_applicants = (Job.objects.filter(status=Job.Status.OPEN)
+                     .exclude(job_id__in=Subquery(applied_ids)))
+
+    jobs = with_applicants if show == 'applied' else no_applicants
+    jobs = jobs.select_related('employer__employer').order_by('-posted_at')
+    return render(request, 'home/admin_engagement.html', {
+        'initial': _initial(request.user),
+        'jobs': _attach_application_counts(list(jobs[:200])),
+        'show': show,
+        'n_applied': with_applicants.count(),
+        'n_none': no_applicants.count(),
+        'sql': _pretty_sql(jobs),
+    })

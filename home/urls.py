@@ -26,7 +26,8 @@ urlpatterns = [
     path('trust-score/', views.trust_score_view, name='trust'),
     path('jobs/<int:job_id>/review/', views.review_view, name='review'),
 
-    # JOIN / SUBQUERY activity
-    path('reports/jobs-employers/', views.jobs_with_employers_view, name='jobs_join'),
-    path('reports/jobs-with-applications/', views.jobs_with_applications_view, name='jobs_subquery'),
+    # administrator
+    path('admin-console/', views.admin_home_view, name='admin_home'),
+    path('admin-console/listings/', views.admin_listings_view, name='admin_listings'),
+    path('admin-console/engagement/', views.admin_engagement_view, name='admin_engagement'),
 ]

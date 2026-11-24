@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Admin overview | KugiHub{% endblock %}
+{% block content %}
+<div class="dashboard-shell">
+    {% include 'home/_sidebar.html' with active='admin_home' %}
+    <main class="dashboard-main">
+        <header class="dashboard-header">
+            <div>
+                <p class="kicker dashboard-kicker">ADMINISTRATOR</p>
+                <h1>Platform <strong>overview.</strong></h1>
+                <p class="dashboard-subtitle">Monitor listings and see which ones need attention.</p>
+            </div>
+            <a class="profile-chip" href="{% url 'home:admin_home' %}"><span class="profile-avatar">{{ initial }}</span><span><strong>{{ user.get_full_name }}</strong><small>Administrator</small></span></a>
+        </header>
+
+        <div class="ui-wrap">
+            <div class="ad-stats">
+                <div class="ui-card ad-stat"><span>Workers</span><strong>{{ workers }}</strong></div>
+                <div class="ui-card ad-stat"><span>Employers</span><strong>{{ employers }}</strong></div>
+                <div class="ui-card ad-stat"><span>Open listings</span><strong>{{ open_jobs }}</strong><small>of {{ jobs_total }} total</small></div>
+                <div class="ui-card ad-stat"><span>Applications</span><strong>{{ applications }}</strong></div>
+            </div>
+
+            <div class="ui-grid-2">
+                <a class="ui-card ad-link" href="{% url 'home:admin_listings' %}">
+                    <span class="pf-icon">▤</span>
+                    <h3>Listings overview</h3>
+                    <p>Every listing together with the employer who posted it, their company and how many workers applied.</p>
+                    <span class="ad-go">Open report →</span>
+                </a>
+                <a class="ui-card ad-link" href="{% url 'home:admin_engagement' %}">
+                    <span class="pf-icon">◎</span>
+                    <h3>Engagement check</h3>
+                    <p>Find open listings nobody has applied to yet{% if stale %} <strong>({{ stale }} right now)</strong>{% endif %}, so they can be improved or promoted.</p>
+                    <span class="ad-go">Open report →</span>
+                </a>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

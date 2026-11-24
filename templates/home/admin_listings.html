@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Listings overview | KugiHub{% endblock %}
+{% block content %}
+<div class="dashboard-shell">
+    {% include 'home/_sidebar.html' with active='admin_listings' %}
+    <main class="dashboard-main">
+        <header class="dashboard-header">
+            <div>
+                <p class="kicker dashboard-kicker">ADMIN REPORT · JOIN</p>
+                <h1>Listings and <strong>their employers.</strong></h1>
+                <p class="dashboard-subtitle">Each listing is combined with its employer profile and account.</p>
+            </div>
+            <a class="profile-chip" href="{% url 'home:admin_home' %}"><span class="profile-avatar">{{ initial }}</span><span><strong>{{ user.get_full_name }}</strong><small>Administrator</small></span></a>
+        </header>
+
+        <div class="ui-wrap">
+            <div class="ui-chips">
+                {% for value, label, n in chips %}
+                <a class="ui-chip{% if value == status %} is-active{% endif %}" href="?status={{ value }}">{{ label }} <small>{{ n }}</small></a>
+                {% endfor %}
+            </div>
+
+            <div class="report-card"><div class="report-scroll">
+                <table class="report-table">
+                    <thead><tr>
+                        <th>ID</th><th>Listing</th><th>Employer</th><th>Company</th><th>Fee</th><th>Status</th><th>Applicants</th><th>Posted</th>
+                    </tr></thead>
+                    <tbody>
+                    {% for job in jobs %}
+                        <tr>
+                            <td class="report-id">#{{ job.job_id }}</td>
+                            <td><span class="report-title">{{ job.title }}</span><span class="report-sub">{{ job.location }}</span></td>
+                            <td>{{ job.employer.employer.get_full_name }}<span class="report-sub">{{ job.employer.employer.email }}</span></td>
+                            <td>{{ job.employer.company_name|default:"Private client" }}</td>
+                            <td class="report-fee">₱{{ job.fee_amount|floatformat:"-2" }} <span class="report-sub">{{ job.get_fee_type_display }}</span></td>
+                            <td><span class="ui-status ui-status-{{ job.status }}">{{ job.get_status_display }}</span></td>
+                            <td>{{ job.app_count }}</td>
+                            <td>{{ job.posted_at|date:"M d, Y" }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="8" class="report-empty">No listings match this filter.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div></div>
+
+            <details class="ui-sql">
+                <summary>How this report is built</summary>
+                <p>Django ORM: <code>Job.objects.select_related('employer__employer')</code> joins <code>jobs</code>, <code>employer_profiles</code> and <code>users</code>.</p>
+                <pre>{{ sql }}</pre>
+            </details>
+        </div>
+    </main>
+</div>
+{% endblock %}

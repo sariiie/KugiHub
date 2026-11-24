@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Engagement check | KugiHub{% endblock %}
+{% block content %}
+<div class="dashboard-shell">
+    {% include 'home/_sidebar.html' with active='admin_engagement' %}
+    <main class="dashboard-main">
+        <header class="dashboard-header">
+            <div>
+                <p class="kicker dashboard-kicker">ADMIN REPORT · SUBQUERY</p>
+                <h1>Which listings get <strong>applicants?</strong></h1>
+                <p class="dashboard-subtitle">Spot open listings that nobody has applied to, and see the ones that are working.</p>
+            </div>
+            <a class="profile-chip" href="{% url 'home:admin_home' %}"><span class="profile-avatar">{{ initial }}</span><span><strong>{{ user.get_full_name }}</strong><small>Administrator</small></span></a>
+        </header>
+
+        <div class="ui-wrap">
+            <div class="ui-chips">
+                <a class="ui-chip{% if show == 'none' %} is-active{% endif %}" href="?show=none">No applicants yet <small>{{ n_none }}</small></a>
+                <a class="ui-chip{% if show == 'applied' %} is-active{% endif %}" href="?show=applied">Has applicants <small>{{ n_applied }}</small></a>
+            </div>
+
+            <div class="report-card"><div class="report-scroll">
+                <table class="report-table">
+                    <thead><tr>
+                        <th>ID</th><th>Listing</th><th>Employer</th><th>Status</th><th>Applicants</th><th>Posted</th>
+                    </tr></thead>
+                    <tbody>
+                    {% for job in jobs %}
+                        <tr>
+                            <td class="report-id">#{{ job.job_id }}</td>
+                            <td><span class="report-title">{{ job.title }}</span><span class="report-sub">{{ job.location }}</span></td>
+                            <td>{{ job.employer.employer.get_full_name }}<span class="report-sub">{{ job.employer.company_name|default:"Private client" }}</span></td>
+                            <td><span class="ui-status ui-status-{{ job.status }}">{{ job.get_status_display }}</span></td>
+                            <td>{{ job.app_count }}</td>
+                            <td>{{ job.posted_at|date:"M d, Y" }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="6" class="report-empty">{% if show == 'none' %}Every open listing has at least one applicant. 🎉{% else %}No listing has received an application yet.{% endif %}</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div></div>
+
+            <details class="ui-sql">
+                <summary>How this report is built</summary>
+                <p>Inner query: <code>JobApplication.objects.values('job_id')</code> returns the jobs that have applications.<br>
+                Outer query: <code>Job.objects.{% if show == 'applied' %}filter{% else %}exclude{% endif %}(job_id__in=Subquery(...))</code> uses that result as its condition.</p>
+                <pre>{{ sql }}</pre>
+            </details>
+        </div>
+    </main>
+</div>
+{% endblock %}

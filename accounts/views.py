@@ -7,6 +7,8 @@ from .forms import LoginForm, RegisterForm
 
 
 def _landing_for(user):
+    if user.role == 'admin':
+        return 'home:admin_home'
     return 'home:employer' if user.is_employer else 'home:home'
 
 

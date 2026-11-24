@@ -1,0 +1,15 @@
+/* KugiHub - administrator console */
+.ad-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 18px; }
+.ad-stat { display: grid; gap: 2px; }
+.ad-stat span { color: var(--muted, #667785); font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+.ad-stat strong { color: var(--navy-deep, #14284b); font-size: 34px; letter-spacing: -1px; }
+.ad-stat small { color: var(--muted, #667785); }
+.ad-link { display: block; text-decoration: none; transition: transform .15s, box-shadow .15s; }
+.ad-link:hover { transform: translateY(-2px); }
+.ad-link h3 { margin: 12px 0 6px; color: var(--navy-deep, #14284b); font-size: 19px; }
+.ad-link p { margin: 0 0 14px; color: var(--muted, #667785); font-size: 14px; line-height: 1.6; }
+.ad-go { color: var(--orange, #0f8b7e); font-weight: 700; }
+.ui-sql { margin-top: 16px; padding: 14px 18px; border: 1px solid var(--line, #dfe8ee); border-radius: 14px; background: #fff; color: var(--muted, #667785); font-size: 13px; line-height: 1.6; }
+.ui-sql summary { cursor: pointer; color: var(--navy-deep, #14284b); font-weight: 700; }
+.ui-sql code { padding: 2px 6px; border-radius: 6px; background: var(--paper, #eef3f7); font-family: Consolas, monospace; font-size: 12px; }
+.ui-sql pre { margin: 10px 0 0; padding: 14px 16px; border-radius: 12px; background: #0f1b33; color: #cfe3ff; font-family: Consolas, monospace; font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; }

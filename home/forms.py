@@ -59,12 +59,6 @@ class WorkerProfileForm(forms.ModelForm):
             raise forms.ValidationError('Add up to 10 new skills at a time.')
         return names
 
-    class Meta:
-        model = WorkerProfile
-        fields = ['headline', 'bio', 'years_experience', 'availability']
-        widgets = {'bio': forms.Textarea(attrs={'rows': 5})}
-        labels = {'years_experience': 'Years of experience'}
-
 
 class EmployerProfileForm(forms.ModelForm):
     class Meta:
