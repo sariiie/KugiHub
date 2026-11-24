@@ -541,6 +541,8 @@ def profile_view(request):
         'profile_form': profile_form,
         'stats': stats,
         'trust_percent': int(profile.trust_score / 5 * 100),
+        'checklist': checklist,
+        'completion': completion,
     })
 
 
