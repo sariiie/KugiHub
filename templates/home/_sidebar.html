@@ -1,0 +1,23 @@
+<aside class="dashboard-sidebar">
+    <a class="dashboard-brand" href="{% if user.is_employer %}{% url 'home:employer' %}{% else %}{% url 'home:home' %}{% endif %}"><span class="brand-mark" aria-hidden="true"></span><span>Kugi<span>Hub</span></span></a>
+    <nav class="dashboard-nav" aria-label="Main navigation">
+        {% if user.is_employer %}
+        <a class="dashboard-nav-link{% if active == 'dashboard' %} is-active{% endif %}" href="{% url 'home:employer' %}"><span>▦</span> Dashboard</a>
+        <a class="dashboard-nav-link{% if active == 'post_job' %} is-active{% endif %}" href="{% url 'home:post_job' %}"><span>＋</span> Post a service</a>
+        <a class="dashboard-nav-link{% if active == 'my_jobs' %} is-active{% endif %}" href="{% url 'home:my_jobs' %}"><span>▤</span> My listings</a>
+        {% else %}
+        <a class="dashboard-nav-link{% if active == 'dashboard' %} is-active{% endif %}" href="{% url 'home:home' %}"><span>▦</span> Dashboard</a>
+        <a class="dashboard-nav-link{% if active == 'find_work' %} is-active{% endif %}" href="{% url 'home:find_work' %}"><span>＋</span> Find work</a>
+        <a class="dashboard-nav-link{% if active == 'applications' %} is-active{% endif %}" href="{% url 'home:applications' %}"><span>✉</span> My applications</a>
+        {% endif %}
+        <a class="dashboard-nav-link{% if active == 'profile' %} is-active{% endif %}" href="{% url 'home:profile' %}"><span>○</span> My profile</a>
+        <a class="dashboard-nav-link{% if active == 'trust' %} is-active{% endif %}" href="{% url 'home:trust' %}"><span>★</span> Trust score</a>
+        <p class="sidebar-label ui-side-label">SQL REPORTS</p>
+        <a class="dashboard-nav-link{% if active == 'join' %} is-active{% endif %}" href="{% url 'home:jobs_join' %}"><span>▤</span> Jobs &amp; employers</a>
+        <a class="dashboard-nav-link{% if active == 'subquery' %} is-active{% endif %}" href="{% url 'home:jobs_subquery' %}"><span>○</span> Jobs with applicants</a>
+    </nav>
+    <div class="sidebar-bottom">
+        <p class="sidebar-label">YOUR ACCOUNT</p>
+        <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button type="submit" class="dashboard-nav-link logout-button"><span>↪</span> Log out</button></form>
+    </div>
+</aside>

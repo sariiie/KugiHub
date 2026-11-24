@@ -2,16 +2,7 @@
 {% block title %}Post a service | KugiHub{% endblock %}
 {% block content %}
 <div class="dashboard-shell employer-dashboard">
-    <aside class="dashboard-sidebar">
-        <a class="dashboard-brand" href="{% url 'home:employer' %}"><span class="brand-mark" aria-hidden="true"></span><span>Kugi<span>Hub</span></span></a>
-        <nav class="dashboard-nav" aria-label="Main navigation">
-            <a class="dashboard-nav-link" href="{% url 'home:employer' %}"><span>▦</span> Dashboard</a>
-            <a class="dashboard-nav-link is-active" href="{% url 'home:post_job' %}"><span>＋</span> Post a service</a>
-        </nav>
-        <div class="sidebar-bottom">
-            <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button type="submit" class="dashboard-nav-link logout-button"><span>↪</span> Log out</button></form>
-        </div>
-    </aside>
+    {% include 'home/_sidebar.html' with active='post_job' %}
 
     <main class="dashboard-main">
         <header class="dashboard-header">

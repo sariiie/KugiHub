@@ -2,20 +2,7 @@
 {% block title %}Find work | KugiHub{% endblock %}
 {% block content %}
 <div class="dashboard-shell">
-    <aside class="dashboard-sidebar">
-        <a class="dashboard-brand" href="{% url 'home:home' %}"><span class="brand-mark" aria-hidden="true"></span><span>Kugi<span>Hub</span></span></a>
-        <nav class="dashboard-nav" aria-label="Main navigation">
-            <a class="dashboard-nav-link" href="{% url 'home:home' %}"><span>▦</span> Dashboard</a>
-            <a class="dashboard-nav-link is-active" href="{% url 'home:find_work' %}"><span>＋</span> Find work</a>
-            <a class="dashboard-nav-link" href="{% url 'home:home' %}#profile"><span>○</span> My profile</a>
-                        <a class="dashboard-nav-link" href="{% url 'home:jobs_join' %}"><span>▤</span> Jobs &amp; employers</a>
-            <a class="dashboard-nav-link" href="{% url 'home:jobs_subquery' %}"><span>○</span> Jobs with applicants</a>
-        </nav>
-        <div class="sidebar-bottom">
-            <p class="sidebar-label">YOUR ACCOUNT</p>
-            <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button type="submit" class="dashboard-nav-link logout-button"><span>↪</span> Log out</button></form>
-        </div>
-    </aside>
+    {% include 'home/_sidebar.html' with active='find_work' %}
 
     <main class="dashboard-main">
         <header class="dashboard-header">
@@ -24,7 +11,7 @@
                 <h1>Find your next <strong>job.</strong></h1>
                 <p class="dashboard-subtitle">Search open service requests and apply in one click.</p>
             </div>
-            <a class="profile-chip" href="{% url 'home:home' %}#profile"><span class="profile-avatar">{{ initial }}</span><span><strong>{{ user.get_full_name }}</strong><small>Back to dashboard</small></span></a>
+            <a class="profile-chip" href="{% url 'home:profile' %}"><span class="profile-avatar">{{ initial }}</span><span><strong>{{ user.get_full_name }}</strong><small>Back to dashboard</small></span></a>
         </header>
 
         <div class="find-wrap">

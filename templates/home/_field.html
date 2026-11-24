@@ -1,0 +1,7 @@
+<div class="field{% if field.name == 'bio' or field.name == 'description' or field.name == 'skills' or field.name == 'address' or field.name == 'comment' or field.name == 'title' or field.name == 'rating' %} field-full{% endif %}">
+    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+    {% if field.name == 'skills' %}<div class="skill-checks">{{ field }}</div>
+    {% elif field.name == 'rating' %}<div class="rating-field">{{ field }}</div>
+    {% else %}{{ field }}{% endif %}
+    {% for e in field.errors %}<p class="form-error">{{ e }}</p>{% endfor %}
+</div>

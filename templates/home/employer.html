@@ -2,20 +2,7 @@
 {% block title %}Employer Dashboard | KugiHub{% endblock %}
 {% block content %}
 <div class="dashboard-shell employer-dashboard">
-    <aside class="dashboard-sidebar">
-        <a class="dashboard-brand" href="{% url 'home:employer' %}"><span class="brand-mark" aria-hidden="true"></span><span>Kugi<span>Hub</span></span></a>
-        <nav class="dashboard-nav" aria-label="Main navigation">
-            <a class="dashboard-nav-link is-active" href="{% url 'home:employer' %}"><span>▦</span> Dashboard</a>
-            <a class="dashboard-nav-link" href="{% url 'home:post_job' %}"><span>＋</span> Post a service</a>
-            <a class="dashboard-nav-link" href="#listings"><span>▤</span> My listings</a>
-            <a class="dashboard-nav-link" href="{% url 'home:jobs_join' %}"><span>▤</span> Jobs & employers</a>
-<a class="dashboard-nav-link" href="{% url 'home:jobs_subquery' %}"><span>○</span> Jobs with applicants</a>
-        </nav>
-        <div class="sidebar-bottom">
-            <p class="sidebar-label">YOUR ACCOUNT</p>
-            <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button type="submit" class="dashboard-nav-link logout-button"><span>↪</span> Log out</button></form>
-        </div>
-    </aside>
+    {% include 'home/_sidebar.html' with active='dashboard' %}
 
     <main class="dashboard-main">
         <header class="dashboard-header">
@@ -24,7 +11,7 @@
                 <h1>Hello, <strong>{{ user.first_name }}.</strong></h1>
                 <p class="dashboard-subtitle">Find dependable people for the work that needs doing.</p>
             </div>
-            <a class="profile-chip" href="#profile"><span class="profile-avatar">{{ initial }}</span><span><strong>{{ profile }}</strong><small>View profile</small></span></a>
+            <a class="profile-chip" href="{% url 'home:profile' %}"><span class="profile-avatar">{{ initial }}</span><span><strong>{{ profile }}</strong><small>View profile</small></span></a>
         </header>
 
         <section class="employer-actions" id="post-job">
@@ -57,6 +44,7 @@
                     <h3>{{ job.title }}</h3>
                     <p class="job-client">{{ job.location }} · ₱{{ job.fee_amount|floatformat:"-2" }} {{ job.get_fee_type_display|lower }}</p>
                     <div class="job-card-footer"><span class="client-rating">{{ job.app_count }} application{{ job.app_count|pluralize }}</span>{% if job.assigned_worker %}<span class="client-rating">Assigned: {{ job.assigned_worker.worker.get_full_name }}</span>{% endif %}</div>
+                    <div class="ui-actions"><a class="ui-btn" href="{% url 'home:job_applicants' job.pk %}">Applicants</a><a class="ui-btn ui-btn-ghost" href="{% url 'home:edit_job' job.pk %}">Edit</a><a class="ui-btn ui-btn-ghost" href="{% url 'home:my_jobs' %}">Manage all</a></div>
                 </article>
                 {% empty %}
                 <article class="job-card empty-state">
