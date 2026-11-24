@@ -158,3 +158,6 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+
+SESSION_COOKIE_NAME = 'kugihub_sessionid'
+CSRF_COOKIE_NAME = 'kugihub_csrftoken'
