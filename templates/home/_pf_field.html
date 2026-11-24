@@ -1,0 +1,5 @@
+<div class="pf-field {{ cls }}">
+    <label for="{{ field.id_for_label }}">{{ label|default:field.label }}</label>
+    {{ field }}
+    {% for e in field.errors %}<p class="form-error">{{ e }}</p>{% endfor %}
+</div>
