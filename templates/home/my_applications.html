@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}My applications | KugiHub{% endblock %}
+{% block content %}
+<div class="dashboard-shell">
+    {% include 'home/_sidebar.html' with active='applications' %}
+    <main class="dashboard-main">
+        <header class="dashboard-header">
+            <div>
+                <p class="kicker dashboard-kicker">MY APPLICATIONS</p>
+                <h1>Jobs you <strong>applied for.</strong></h1>
+                <p class="dashboard-subtitle">Track every application and cancel the ones you no longer want.</p>
+            </div>
+            <a class="profile-chip" href="{% url 'home:profile' %}"><span class="profile-avatar">{{ initial }}</span><span><strong>{{ user.get_full_name }}</strong><small>My profile</small></span></a>
+        </header>
+
+        <div class="ui-wrap">
+            <div class="ui-chips">
+                {% for value, label, n in chips %}
+                <a class="ui-chip{% if value == status %} is-active{% endif %}" href="?status={{ value }}">{{ label }} <small>{{ n }}</small></a>
+                {% endfor %}
+            </div>
+
+            {% for a in applications %}
+            <article class="ui-card ui-item">
+                <div class="ui-item-top">
+                    <span class="ui-status ui-status-{{ a.status }}">{{ a.get_status_display }}</span>
+                    <span class="report-sub">Applied {{ a.applied_at|timesince }} ago</span>
+                </div>
+                <h3 class="ui-item-title">{{ a.job.title }}</h3>
+                <p class="report-sub">{{ a.job.employer.employer.get_full_name }} · {{ a.job.location }} · ₱{{ a.job.fee_amount|floatformat:"-2" }} {{ a.job.get_fee_type_display|lower }}</p>
+                <p class="report-sub">Job status: <span class="ui-status ui-status-{{ a.job.status }}">{{ a.job.get_status_display }}</span></p>
+                {% if a.message %}<p class="ui-quote">{{ a.message }}</p>{% endif %}
+
+                <div class="ui-actions">
+                    {% if a.status == 'pending' or a.status == 'accepted' and a.job.status == 'assigned' %}
+                    <form method="post" action="{% url 'home:cancel_application' a.pk %}" onsubmit="return confirm('Cancel this application?');">
+                        {% csrf_token %}<button type="submit" class="ui-btn ui-btn-danger">{% if a.status == 'accepted' %}Withdraw from job{% else %}Cancel application{% endif %}</button>
+                    </form>
+                    {% endif %}
+                    {% if a.job.status == 'completed' and a.status == 'accepted' and a.job_id not in reviewed_job_ids %}
+                    <a class="ui-btn" href="{% url 'home:review' a.job_id %}">Rate employer ★</a>
+                    {% endif %}
+                    {% if a.status == 'withdrawn' and a.job.status == 'open' %}
+                    <form method="post" action="{% url 'home:apply' a.job_id %}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'home:applications' %}"><button type="submit" class="ui-btn">Apply again</button></form>
+                    {% endif %}
+                </div>
+            </article>
+            {% empty %}
+            <article class="ui-card ui-empty">
+                <h3>No applications here</h3>
+                <p>{% if status %}Nothing with this status.{% else %}Find a job and press Apply to get started.{% endif %}</p>
+                <a class="button-primary" href="{% url 'home:find_work' %}">Find work <span>→</span></a>
+            </article>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+{% endblock %}
