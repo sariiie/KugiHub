@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Trust score | KugiHub{% endblock %}
+{% block content %}
+<div class="dashboard-shell">
+    {% include 'home/_sidebar.html' with active='trust' %}
+    <main class="dashboard-main">
+        <header class="dashboard-header">
+            <div>
+                <p class="kicker dashboard-kicker">TRUST SCORE</p>
+                <h1>Your <strong>reputation.</strong></h1>
+                <p class="dashboard-subtitle">Your score is the average of the ratings you receive after completed jobs.</p>
+            </div>
+            <a class="profile-chip" href="{% url 'home:profile' %}"><span class="profile-avatar">{{ initial }}</span><span><strong>{{ user.get_full_name }}</strong><small>My profile</small></span></a>
+        </header>
+
+        <div class="ui-wrap">
+            <div class="ui-grid-2">
+                <section class="trust-card">
+                    <div class="trust-card-heading"><p class="kicker dashboard-kicker">{{ label|upper }}</p><span class="trust-mark">★</span></div>
+                    <div class="trust-score">{{ score }} <small>/ 5.0</small></div>
+                    <div class="trust-meter"><span style="width: {{ trust_percent }}%"></span></div>
+                    <p>Based on {{ total }} review{{ total|pluralize }} received · {{ given_count }} given</p>
+                </section>
+
+                <section class="ui-card">
+                    <p class="kicker dashboard-kicker">RATING BREAKDOWN</p>
+                    {% for row in distribution %}
+                    <div class="ui-bar-row">
+                        <span class="ui-bar-label">{{ row.stars }} ★</span>
+                        <div class="ui-bar"><span style="width: {{ row.pct }}%"></span></div>
+                        <span class="ui-bar-n">{{ row.n }}</span>
+                    </div>
+                    {% endfor %}
+                </section>
+            </div>
+
+            {% if pending_reviews %}
+            <section class="ui-card ui-section">
+                <p class="kicker dashboard-kicker">WAITING FOR YOUR REVIEW</p>
+                {% for job in pending_reviews %}
+                <div class="ui-row">
+                    <div>
+                        <strong class="report-title">{{ job.title }}</strong>
+                        <span class="report-sub">{% if user.is_employer %}Worker: {{ job.assigned_worker.worker.get_full_name }}{% else %}Employer: {{ job.employer.employer.get_full_name }}{% endif %}</span>
+                    </div>
+                    <a class="ui-btn" href="{% url 'home:review' job.pk %}">Leave a review ★</a>
+                </div>
+                {% endfor %}
+            </section>
+            {% endif %}
+
+            <section class="ui-card ui-section">
+                <p class="kicker dashboard-kicker">REVIEWS YOU RECEIVED</p>
+                {% for r in reviews %}
+                <div class="ui-row ui-row-top">
+                    <div>
+                        <div class="ui-stars" aria-label="{{ r.rating }} out of 5">{% for i in "12345" %}{% if forloop.counter <= r.rating %}★{% else %}☆{% endif %}{% endfor %}</div>
+                        <strong class="report-title">{{ r.job.title }}</strong>
+                        {% if r.comment %}<p class="ui-quote">{{ r.comment }}</p>{% endif %}
+                        <span class="report-sub">from {{ r.reviewer.get_full_name }} · {{ r.created_at|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="ui-empty">No reviews yet. Complete a job and ask the other person to rate you.</p>
+                {% endfor %}
+            </section>
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Leave a review | KugiHub{% endblock %}
+{% block content %}
+<div class="dashboard-shell">
+    {% include 'home/_sidebar.html' with active='trust' %}
+    <main class="dashboard-main">
+        <header class="dashboard-header">
+            <div>
+                <p class="kicker dashboard-kicker">REVIEW</p>
+                <h1>Rate <strong>{{ reviewee.get_full_name }}.</strong></h1>
+                <p class="dashboard-subtitle">How was your experience with this {{ reviewee_role }} on "{{ job.title }}"?</p>
+            </div>
+            <a class="profile-chip" href="{% url 'home:trust' %}"><span class="profile-avatar">{{ initial }}</span><span><strong>{{ user.get_full_name }}</strong><small>Skip for now</small></span></a>
+        </header>
+        <div class="ui-wrap ui-narrow">
+            <form method="post" class="post-card ui-form" novalidate>
+                {% csrf_token %}
+                {% if form.non_field_errors %}<p class="form-error">{{ form.non_field_errors.0 }}</p>{% endif %}
+                <div class="post-grid">
+                    {% for field in form %}{% include 'home/_field.html' with field=field %}{% endfor %}
+                </div>
+                <div class="ui-actions">
+                    <button type="submit" class="button-primary">Submit review <span>★</span></button>
+                    <a class="ui-btn ui-btn-ghost" href="{% url 'home:trust' %}">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+{% endblock %}
