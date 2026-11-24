@@ -1,0 +1,20 @@
+<aside class="dashboard-sidebar">
+    <a class="dashboard-brand" href="{% if user.is_employer %}{% url 'home:employer' %}{% else %}{% url 'home:home' %}{% endif %}"><span class="brand-mark" aria-hidden="true"></span><span>Kugi<span>Hub</span></span></a>
+    <nav class="dashboard-nav" aria-label="Main navigation">
+    {% if user.is_employer %}
+    <a class="dashboard-nav-link" href="{% url 'home:employer' %}"><span>▦</span> Dashboard</a>
+    <a class="dashboard-nav-link" href="{% url 'home:post_job' %}"><span>＋</span> Post a service</a>
+    <a class="dashboard-nav-link" href="{% url 'home:employer' %}#listings"><span>▤</span> My listings</a>
+    {% else %}
+    <a class="dashboard-nav-link" href="{% url 'home:home' %}"><span>▦</span> Dashboard</a>
+    <a class="dashboard-nav-link" href="{% url 'home:find_work' %}"><span>＋</span> Find work</a>
+    <a class="dashboard-nav-link" href="{% url 'home:home' %}#profile"><span>○</span> My profile</a>
+    {% endif %}
+    <a class="dashboard-nav-link {% if active == 'join' %}is-active{% endif %}" href="{% url 'home:jobs_join' %}"><span>▤</span> Jobs &amp; employers</a>
+    <a class="dashboard-nav-link {% if active == 'subquery' %}is-active{% endif %}" href="{% url 'home:jobs_subquery' %}"><span>○</span> Jobs with applicants</a>
+</nav>
+    <div class="sidebar-bottom">
+        <p class="sidebar-label">YOUR ACCOUNT</p>
+        <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button type="submit" class="dashboard-nav-link logout-button"><span>↪</span> Log out</button></form>
+    </div>
+</aside>

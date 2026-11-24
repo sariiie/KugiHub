@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Jobs with Applicants | KugiHub{% endblock %}
+{% block content %}
+<div class="dashboard-shell">
+    {% include 'home/_report_sidebar.html' with active='subquery' %}
+    <main class="dashboard-main">
+        <header class="dashboard-header">
+            <div>
+                <p class="kicker dashboard-kicker">SQL SUBQUERY</p>
+                <h1>Jobs that have <strong>applicants.</strong></h1>
+                <p class="dashboard-subtitle">Only jobs with at least one application are listed.</p>
+            </div>
+        </header>
+
+        <div class="report-wrap">
+            <div class="report-summary">
+                <div class="report-chip"><strong>{{ jobs|length }}</strong> jobs with applications</div>
+                <div class="report-chip">Tables: <strong style="font-size:14px">jobs ⟵ job_applications</strong></div>
+            </div>
+            <div class="report-note">
+                Inner query: <code>JobApplication.objects.values('job_id')</code><br>
+                Outer query: <code>Job.objects.filter(job_id__in=Subquery(...))</code> runs as <code>WHERE job_id IN (SELECT job_id FROM job_applications)</code>.
+            </div>
+
+            <div class="report-card"><div class="report-scroll">
+                <table class="report-table">
+                    <thead><tr>
+                        <th>Job ID</th><th>Job</th><th>Location</th><th>Status</th><th>Posted</th>
+                    </tr></thead>
+                    <tbody>
+                    {% for job in jobs %}
+                        <tr>
+                            <td class="report-id">#{{ job.job_id }}</td>
+                            <td class="report-title">{{ job.title }}</td>
+                            <td>{{ job.location }}</td>
+                            <td><span class="job-tag status-{{ job.status }}">{{ job.get_status_display }}</span></td>
+                            <td>{{ job.posted_at|date:"M d, Y" }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="5" class="report-empty">No jobs have applications yet.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div></div>
+        </div>
+    </main>
+</div>
+{% endblock %}

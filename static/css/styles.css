@@ -270,3 +270,22 @@ h1 { margin-top: 12px; font-size: clamp(34px, 4.2vw, 54px); line-height: 1.05; }
 .job-grid .job-card { display: flex; flex-direction: column; margin-top: 0; }
 .job-grid .job-card-footer { margin-top: auto; }
 .job-grid .empty-state { grid-column: 1 / -1; padding: 28px 22px; text-align: center; }
+/* ---------- Report pages (JOIN / SUBQUERY) ---------- */
+.report-wrap { max-width: 1210px; margin: 0 auto; }
+.report-summary { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+.report-chip { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: #fff; font-size: 13px; color: var(--muted); }
+.report-chip strong { color: var(--navy-deep); font-size: 20px; letter-spacing: -.5px; }
+.report-note { margin-bottom: 16px; padding: 14px 16px; border: 1px solid var(--line); border-left: 4px solid var(--orange); border-radius: 12px; background: #fff; font-size: 13px; line-height: 1.6; color: var(--muted); }
+.report-note code { padding: 2px 6px; border-radius: 6px; background: var(--paper); color: var(--navy-deep); font-family: Consolas, monospace; font-size: 12px; }
+.report-card { border: 1px solid var(--line); border-radius: 14px; background: #fff; box-shadow: var(--shadow, 0 8px 24px rgba(32,48,59,.08)); overflow: hidden; }
+.report-scroll { overflow-x: auto; }
+.report-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.report-table th { padding: 13px 18px; border-bottom: 1px solid var(--line); background: var(--paper); color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-align: left; text-transform: uppercase; white-space: nowrap; }
+.report-table td { padding: 15px 18px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.report-table tbody tr:last-child td { border-bottom: 0; }
+.report-table tbody tr:hover { background: #f8fbfd; }
+.report-id { color: var(--muted); font-family: Consolas, monospace; font-size: 13px; }
+.report-title { color: var(--navy-deep); font-weight: 700; }
+.report-sub { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; }
+.report-fee { font-weight: 700; white-space: nowrap; }
+.report-empty { padding: 40px 18px !important; color: var(--muted); text-align: center; }

@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Subquery
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -188,3 +188,22 @@ def find_work_view(request):
         'fee_choices': Job.FeeType.choices,
         'current_url': request.get_full_path(),
     })
+
+@login_required
+def jobs_with_employers_view(request):
+    """JOIN: jobs + employer_profiles + users."""
+    jobs = (Job.objects
+            .filter(status=Job.Status.OPEN)
+            .select_related('employer__employer')
+            .order_by('-posted_at'))
+    print(jobs.query)
+    return render(request, 'home/jobs_join.html', {'jobs': jobs})
+
+
+@login_required
+def jobs_with_applications_view(request):
+    """SUBQUERY: jobs whose job_id appears in job_applications."""
+    applied_job_ids = JobApplication.objects.values('job_id')   # inner query
+    jobs = Job.objects.filter(job_id__in=Subquery(applied_job_ids))  # outer query
+    print(jobs.query)
+    return render(request, 'home/jobs_subquery.html', {'jobs': jobs})
